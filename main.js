@@ -97,12 +97,19 @@
 
   if (smooth.enabled) {
     addEventListener("wheel", (e) => {
+      if (document.body.classList.contains("term-locked")) {
+        const target = e.target instanceof Element ? e.target : null;
+        const scrollingTermBody = target && target.closest(".card.term.is-maximized .term-body");
+        if (!scrollingTermBody) e.preventDefault();
+        return;
+      }
       if (e.ctrlKey) return;
       e.preventDefault();
       smooth.target = clampY(smooth.target + e.deltaY * smooth.wheelMult);
     }, { passive: false });
 
     addEventListener("keydown", (e) => {
+      if (document.body.classList.contains("term-locked")) return;
       const tag = (e.target && e.target.tagName) || "";
       if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
       let d = 0;
@@ -116,6 +123,7 @@
     let ty = 0, touching = false;
     addEventListener("touchstart", (e) => { touching = true; ty = e.touches[0].clientY; }, { passive: true });
     addEventListener("touchmove", (e) => {
+      if (document.body.classList.contains("term-locked")) return;
       if (!touching) return;
       const y = e.touches[0].clientY;
       smooth.target = clampY(smooth.target + (ty - y) * 1.4);
@@ -171,6 +179,103 @@
     }
   }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
   document.querySelectorAll(".card").forEach((c) => io.observe(c));
+
+  // --- terminal controls (close/minimize/maximize) ----------------------
+  const termCards = [...document.querySelectorAll(".card.term")];
+  const termOverlay = document.createElement("div");
+  termOverlay.className = "term-overlay";
+  document.body.appendChild(termOverlay);
+
+  let activeMaximizedCard = null;
+  const exitMaximized = () => {
+    if (!activeMaximizedCard) return;
+    activeMaximizedCard.classList.remove("is-maximized");
+    activeMaximizedCard = null;
+    termOverlay.classList.remove("show");
+    document.body.classList.remove("term-locked");
+  };
+
+  const getOrCreateReopenButton = (card) => {
+    const cardId = card.id;
+    let reopenBtn = card.parentElement.querySelector(`.term-reopen[data-card-id="${cardId}"]`);
+    if (reopenBtn) return reopenBtn;
+
+    const termTitle = card.querySelector(".term-title")?.textContent?.trim() || "terminal";
+    reopenBtn = document.createElement("button");
+    reopenBtn.className = "term-reopen";
+    reopenBtn.type = "button";
+    reopenBtn.dataset.cardId = cardId;
+    reopenBtn.textContent = `reopen ${termTitle.replace(/^~\s*\/\s*/, "")}`;
+    reopenBtn.hidden = true;
+    card.insertAdjacentElement("afterend", reopenBtn);
+
+    reopenBtn.addEventListener("click", () => {
+      card.classList.remove("is-closed", "is-minimized");
+      reopenBtn.hidden = true;
+    });
+
+    return reopenBtn;
+  };
+
+  const handleWindowAction = (card, action) => {
+    if (action === "close") {
+      if (activeMaximizedCard === card) exitMaximized();
+      card.classList.remove("is-minimized");
+      card.classList.add("is-closed");
+      const reopenBtn = getOrCreateReopenButton(card);
+      reopenBtn.hidden = false;
+      return;
+    }
+
+    if (action === "minimize") {
+      if (card.classList.contains("is-closed")) return;
+      if (activeMaximizedCard === card) exitMaximized();
+      card.classList.toggle("is-minimized");
+      return;
+    }
+
+    if (action === "maximize") {
+      if (card.classList.contains("is-closed")) return;
+      card.classList.remove("is-minimized");
+      if (activeMaximizedCard === card) {
+        exitMaximized();
+        return;
+      }
+      if (activeMaximizedCard) activeMaximizedCard.classList.remove("is-maximized");
+      activeMaximizedCard = card;
+      activeMaximizedCard.classList.add("is-maximized");
+      termOverlay.classList.add("show");
+      document.body.classList.add("term-locked");
+    }
+  };
+
+  termCards.forEach((card, cardIndex) => {
+    if (!card.id) card.id = `term-card-${cardIndex + 1}`;
+    const actions = ["close", "minimize", "maximize"];
+    const dots = card.querySelectorAll(".term-dots i");
+    dots.forEach((dot, i) => {
+      const action = actions[i];
+      if (!action) return;
+      dot.classList.add("term-dot-btn");
+      dot.dataset.winAction = action;
+      dot.tabIndex = 0;
+      dot.setAttribute("role", "button");
+      dot.setAttribute("aria-label", `${action} window`);
+      const run = () => handleWindowAction(card, action);
+      dot.addEventListener("click", run);
+      dot.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          run();
+        }
+      });
+    });
+  });
+
+  termOverlay.addEventListener("click", exitMaximized);
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape") exitMaximized();
+  });
 
   // --- active nav link ---------------------------------------------------
   const navLinks = document.querySelectorAll(".nav nav a[href^='#']");
