@@ -267,6 +267,58 @@ main { position: relative; z-index: 2; }
   max-width: 640px;
   margin-left: clamp(8px, 6vw, 120px);
 }
+.hero-portrait {
+  position: absolute;
+  right: clamp(20px, 8vw, 120px);
+  top: 50%;
+  transform: translateY(-42%);
+  width: clamp(150px, 20vw, 250px);
+  aspect-ratio: 1;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+.hero-avatar-core {
+  width: 74%;
+  aspect-ratio: 1;
+  padding: 4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--mint), var(--blue), var(--violet), var(--mint));
+  box-shadow: 0 0 30px rgba(94,234,212,0.22), 0 0 60px rgba(99,102,241,0.2);
+}
+.hero-avatar-core img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid rgba(6, 10, 14, 0.9);
+  filter: saturate(1.06) contrast(1.04);
+}
+.hero-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(94,234,212,0.32);
+  box-shadow: 0 0 20px rgba(94,234,212,0.16);
+}
+.hero-ring.ring-a {
+  inset: 6%;
+  animation: ringFloat 4.2s ease-in-out infinite;
+}
+.hero-ring.ring-b {
+  inset: 0;
+  border-color: rgba(99,102,241,0.3);
+  border-style: dashed;
+  animation: ringSpin 22s linear infinite;
+}
+@keyframes ringSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@keyframes ringFloat {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.04); opacity: 0.65; }
+}
 .eyebrow {
   font-family: var(--mono);
   color: var(--mint);
@@ -673,6 +725,13 @@ footer {
     letter-spacing: 0.1em;
   }
   .mini-dot.is-active span { color: #04120f; }
+  .hero-portrait {
+    right: 16px;
+    top: 96px;
+    transform: none;
+    width: 96px;
+    opacity: 0.82;
+  }
   .hero, .panel { padding: 80px 20px; }
   .hero-inner, .panel-left .card { margin-left: 0; }
   .term-body { padding: 22px 20px; }
