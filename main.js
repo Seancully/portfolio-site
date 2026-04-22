@@ -174,16 +174,23 @@
 
   // --- active nav link ---------------------------------------------------
   const navLinks = document.querySelectorAll(".nav nav a[href^='#']");
-  const sections = [...document.querySelectorAll("section[id]")];
+  const miniLinks = document.querySelectorAll(".mini-nav a[href^='#']");
+  const sections = [...document.querySelectorAll("main[id], section[id]")];
   const updateNav = () => {
     const y = smooth.current + window.innerHeight * 0.4;
     let active = sections[0]?.id;
     for (const s of sections) { if (s.offsetTop <= y) active = s.id; }
-    navLinks.forEach((a) => {
+    const setActive = (a) => {
       const on = a.getAttribute("href") === "#" + active;
       a.style.color = on ? "var(--mint)" : "";
-    });
+      a.classList.toggle("is-active", on);
+      if (on) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    };
+    navLinks.forEach(setActive);
+    miniLinks.forEach(setActive);
   };
+  updateNav();
   setInterval(updateNav, 150);
 
   // --- magnetic links ----------------------------------------------------

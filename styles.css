@@ -193,6 +193,54 @@ img, video, canvas { display: block; max-width: 100%; }
 .icon-link svg { display: block; transition: transform 200ms; }
 .icon-link:hover svg { transform: rotate(-6deg) scale(1.08); }
 
+/* -------- mini nav -------- */
+.mini-nav {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 12;
+  display: grid;
+  gap: 10px;
+  padding: 10px 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: rgba(10, 14, 20, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.mini-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  transition: transform 180ms, border-color 180ms, background 180ms, box-shadow 180ms;
+}
+.mini-dot:hover { transform: scale(1.15); border-color: var(--mint); }
+.mini-dot.is-active {
+  background: var(--mint);
+  border-color: var(--mint);
+  box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.16), 0 0 18px rgba(94, 234, 212, 0.45);
+}
+.mini-dot span {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms;
+}
+.mini-nav:hover .mini-dot span,
+.mini-dot.is-active span { opacity: 1; }
+
 /* -------- main layout -------- */
 main { position: relative; z-index: 2; }
 
@@ -595,6 +643,17 @@ footer {
 @media (max-width: 720px) {
   .nav { padding: 18px 20px; }
   .nav nav { gap: 14px; }
+  .mini-nav {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    grid-auto-flow: column;
+    gap: 12px;
+    padding: 8px 12px;
+  }
+  .mini-dot span { display: none; }
   .hero, .panel { padding: 80px 20px; }
   .hero-inner, .panel-left .card { margin-left: 0; }
   .term-body { padding: 22px 20px; }
