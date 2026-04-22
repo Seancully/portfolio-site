@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Sean Culleton — Developer</title>
+<meta name="description" content="Sean Culleton — developer. Builds things for the web." />
+<meta property="og:title" content="Sean Culleton — Developer" />
+<meta property="og:description" content="Developer building for the web." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="assets/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="assets/og.png" />
+<!-- analytics: drop in when ready
+<script defer data-domain="your-domain.com" src="https://plausible.io/js/script.js"></script>
+-->
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='none' stroke='url(%23g)' stroke-width='2'/%3E%3Crect x='10' y='10' width='12' height='12' rx='1' fill='url(%23g)' opacity='.5'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- preloader -->
+<div id="preloader" aria-hidden="true">
+  <div class="pl-inner">
+    <div class="pl-brand">sean<span>.</span>dev</div>
+    <div class="pl-bar"><div class="pl-fill" id="plFill"></div></div>
+    <div class="pl-meta"><span id="plPct">0</span>% <span class="pl-dim">— loading cube</span></div>
+  </div>
+</div>
+
+<!-- background -->
+<div class="bg">
+  <canvas id="cubeCanvas" aria-hidden="true"></canvas>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<!-- custom cursor -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+</div>
+
+<header class="nav">
+  <a class="brand" href="#top" data-magnet>sean<span>.</span>dev</a>
+  <nav>
+    <a href="#about" data-magnet>about</a>
+    <a href="#work" data-magnet>work</a>
+    <a href="#stack" data-magnet>stack</a>
+    <a href="#contact" data-magnet>contact</a>
+    <a href="https://github.com/Seancully" target="_blank" rel="noopener" aria-label="GitHub" class="icon-link" data-magnet id="ghLink">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.42c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.08 0 4.41-2.7 5.39-5.27 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/>
+      </svg>
+    </a>
+    <a href="https://www.linkedin.com/in/seanculleton02/" target="_blank" rel="noopener" aria-label="LinkedIn" class="icon-link" data-magnet id="liLink">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor" d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6 1.1 6 0 4.88 0 3.5S1.1 1 2.48 1c1.38 0 2.5 1.12 2.5 2.5ZM.25 8h4.46v14.5H.25V8Zm7.13 0h4.28v1.98h.06c.6-1.13 2.05-2.32 4.22-2.32 4.52 0 5.35 2.97 5.35 6.83v8.01h-4.46v-7.1c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.84-2.71 3.74v7.22H7.38V8Z"/>
+      </svg>
+    </a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-backdrop" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <p class="eyebrow" data-scramble>// portfolio — v1</p>
+      <h1 data-scramble>Sean Culleton</h1>
+      <p class="tagline">Developer building for the&nbsp;web. Interfaces, tools, and the occasional weird idea.</p>
+      <div class="hero-meta">
+        <span class="dot"></span>
+        <span>available for work</span>
+        <span class="sep">/</span>
+        <span>Ireland</span>
+      </div>
+      <p class="scroll-hint" aria-hidden="true">scroll ↓</p>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>available for work</span><span class="m-dot">✦</span>
+      <span>freelance + full-time</span><span class="m-dot">✦</span>
+      <span>ireland / remote</span><span class="m-dot">✦</span>
+      <span>typescript · react · three.js</span><span class="m-dot">✦</span>
+      <span>available for work</span><span class="m-dot">✦</span>
+      <span>freelance + full-time</span><span class="m-dot">✦</span>
+      <span>ireland / remote</span><span class="m-dot">✦</span>
+      <span>typescript · react · three.js</span><span class="m-dot">✦</span>
+    </div>
+  </div>
+
+  <section id="about" class="panel panel-left">
+    <div class="card term">
+      <div class="term-bar">
+        <div class="term-dots"><i></i><i></i><i></i></div>
+        <div class="term-title">~ / about.md</div>
+        <div class="term-spacer"></div>
+      </div>
+      <div class="term-body">
+        <p class="tag" data-scramble>01 — about</p>
+        <h2 data-scramble>hey, I'm Sean.</h2>
+        <p>I design and build software — mostly on the web. I like clean type, fast interfaces, and code that's honest about what it's doing.</p>
+        <p>Outside of work I tinker with 3D, audio, and whatever rabbit hole looks most interesting that week.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="panel panel-left">
+    <div class="card term">
+      <div class="term-bar">
+        <div class="term-dots"><i></i><i></i><i></i></div>
+        <div class="term-title">~ / work — ls projects/</div>
+        <div class="term-spacer"></div>
+      </div>
+      <div class="term-body">
+        <p class="tag" data-scramble>02 — selected work</p>
+        <h2 data-scramble>things I've built</h2>
+        <ul class="projects">
+          <li><a href="https://www.furlongequipment.com" target="_blank" rel="noopener" class="proj" data-magnet>
+            <span class="proj-thumb" style="--t1:#f59e0b;--t2:#fbbf24">
+              <img src="assets/projects/furlong.jpg" alt="" loading="lazy" />
+            </span>
+            <span class="proj-text">
+              <span class="proj-title">Furlong Equipment</span>
+              <span class="proj-desc">Website for a long-established Irish machinery dealer — catalogue, brand, responsive build.</span>
+              <span class="proj-meta">furlongequipment.com · wordpress, php, js</span>
+            </span>
+            <span class="proj-arrow">↗</span>
+          </a></li>
+          <li><a href="https://ronanocfitness.com" target="_blank" rel="noopener" class="proj" data-magnet>
+            <span class="proj-thumb" style="--t1:#ef4444;--t2:#991b1b">
+              <img src="assets/projects/ronanoc.svg" alt="" loading="lazy" />
+            </span>
+            <span class="proj-text">
+              <span class="proj-title">RonanOC Fitness <span class="proj-badge">wip</span></span>
+              <span class="proj-desc">Online coaching site with plans, onboarding, and client area. Launching soon.</span>
+              <span class="proj-meta">ronanocfitness.com · react, node, stripe</span>
+            </span>
+            <span class="proj-arrow">↗</span>
+          </a></li>
+          <li><a href="#" class="proj" data-magnet>
+            <span class="proj-thumb" style="--t1:#a78bfa;--t2:#5eead4">
+              <img src="assets/projects/jarvis.svg" alt="" loading="lazy" />
+            </span>
+            <span class="proj-text">
+              <span class="proj-title">Jarvis <span class="proj-badge">personal</span></span>
+              <span class="proj-desc">Local AI assistant — voice input, agentic tools, all running on my machine.</span>
+              <span class="proj-meta">2025 · python, whisper, llm, tts</span>
+            </span>
+            <span class="proj-arrow">→</span>
+          </a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack" class="panel panel-left">
+    <div class="card term">
+      <div class="term-bar">
+        <div class="term-dots"><i></i><i></i><i></i></div>
+        <div class="term-title">~ / stack — cat tools.json</div>
+        <div class="term-spacer"></div>
+      </div>
+      <div class="term-body">
+        <p class="tag" data-scramble>03 — stack</p>
+        <h2 data-scramble>tools of choice</h2>
+        <div class="chips">
+          <span>typescript</span><span>javascript</span><span>react</span>
+          <span>node.js</span><span>express</span><span>next.js</span>
+          <span>mongodb</span><span>mern stack</span>
+          <span>c#</span><span>.net</span><span>python</span>
+          <span>docker</span><span>git</span>
+          <span>tailwind</span><span>three.js</span><span>webgl</span>
+          <span>figma</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="panel panel-left">
+    <div class="card term">
+      <div class="term-bar">
+        <div class="term-dots"><i></i><i></i><i></i></div>
+        <div class="term-title">~ / contact — mail -s "hello"</div>
+        <div class="term-spacer"></div>
+      </div>
+      <div class="term-body">
+        <p class="tag" data-scramble>04 — contact</p>
+        <h2 data-scramble>let's talk.</h2>
+        <p>Open to freelance, full-time, and interesting collaborations.</p>
+        <ul class="links">
+          <li class="link-row">
+            <a href="mailto:seanculleton02@gmail.com" data-magnet>seanculleton02@gmail.com</a>
+            <button class="copy-btn" data-copy="seanculleton02@gmail.com" aria-label="Copy email">copy</button>
+          </li>
+          <li><a href="https://github.com/Seancully" target="_blank" rel="noopener" data-magnet>github</a></li>
+          <li><a href="https://www.linkedin.com/in/seanculleton02/" target="_blank" rel="noopener" data-magnet>linkedin</a></li>
+          <li><a href="assets/resume.pdf" target="_blank" rel="noopener" data-magnet id="resumeLink">resume.pdf <span class="link-meta">↗</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© <span id="year"></span> Sean Culleton</span>
+    <span>built from scratch · no frameworks</span>
+  </footer>
+
+</main>
+
+<script src="main.js"></script>
+</body>
+</html>
