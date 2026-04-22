@@ -541,7 +541,16 @@ main { position: relative; z-index: 2; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.stack-grid { display: grid; gap: 14px; margin-top: 8px; }
+.stack-group { display: grid; gap: 8px; }
+.stack-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips span {
   font-family: var(--mono);
   font-size: 12px;
