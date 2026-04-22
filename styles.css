@@ -28,6 +28,7 @@ body {
   overflow-x: hidden;
 }
 body.term-locked { overflow: hidden; }
+body.term-locked main { z-index: 85; }
 a { color: inherit; text-decoration: none; }
 img, video, canvas { display: block; max-width: 100%; }
 
@@ -475,9 +476,9 @@ main { position: relative; z-index: 2; }
 .term-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 12, 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(4, 7, 12, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
