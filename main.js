@@ -187,6 +187,7 @@
   document.body.appendChild(termOverlay);
 
   let activeMaximizedCard = null;
+  const termState = new Map();
   const exitMaximized = () => {
     if (!activeMaximizedCard) return;
     activeMaximizedCard.classList.remove("is-maximized");
@@ -195,47 +196,33 @@
     document.body.classList.remove("term-locked");
   };
 
-  const getOrCreateReopenButton = (card) => {
-    const cardId = card.id;
-    let reopenBtn = card.parentElement.querySelector(`.term-reopen[data-card-id="${cardId}"]`);
-    if (reopenBtn) return reopenBtn;
-
-    const termTitle = card.querySelector(".term-title")?.textContent?.trim() || "terminal";
-    reopenBtn = document.createElement("button");
-    reopenBtn.className = "term-reopen";
-    reopenBtn.type = "button";
-    reopenBtn.dataset.cardId = cardId;
-    reopenBtn.textContent = `reopen ${termTitle.replace(/^~\s*\/\s*/, "")}`;
-    reopenBtn.hidden = true;
-    card.insertAdjacentElement("afterend", reopenBtn);
-
-    reopenBtn.addEventListener("click", () => {
-      card.classList.remove("is-closed", "is-minimized");
-      reopenBtn.hidden = true;
+  const setRedOrangeEnabled = (card, enabled) => {
+    const dots = card.querySelectorAll(".term-dots i");
+    dots.forEach((dot, idx) => {
+      if (idx > 1) return;
+      dot.classList.toggle("is-locked", !enabled);
+      dot.setAttribute("aria-disabled", enabled ? "false" : "true");
     });
-
-    return reopenBtn;
   };
 
   const handleWindowAction = (card, action) => {
-    if (action === "close") {
-      if (activeMaximizedCard === card) exitMaximized();
-      card.classList.remove("is-minimized");
-      card.classList.add("is-closed");
-      const reopenBtn = getOrCreateReopenButton(card);
-      reopenBtn.hidden = false;
-      return;
-    }
-
     if (action === "minimize") {
-      if (card.classList.contains("is-closed")) return;
+      const state = termState.get(card.id);
+      if (!state?.armed) {
+        if (typeof showToast === "function") showToast("press green first");
+        return;
+      }
       if (activeMaximizedCard === card) exitMaximized();
       card.classList.toggle("is-minimized");
       return;
     }
 
     if (action === "maximize") {
-      if (card.classList.contains("is-closed")) return;
+      const state = termState.get(card.id);
+      if (state && !state.armed) {
+        state.armed = true;
+        setRedOrangeEnabled(card, true);
+      }
       card.classList.remove("is-minimized");
       if (activeMaximizedCard === card) {
         exitMaximized();
@@ -251,7 +238,10 @@
 
   termCards.forEach((card, cardIndex) => {
     if (!card.id) card.id = `term-card-${cardIndex + 1}`;
-    const actions = ["close", "minimize", "maximize"];
+    termState.set(card.id, { armed: false });
+    setRedOrangeEnabled(card, false);
+    const actions = ["minimize", "minimize", "maximize"];
+    const labels = ["minimize window", "minimize window", "maximize window"];
     const dots = card.querySelectorAll(".term-dots i");
     dots.forEach((dot, i) => {
       const action = actions[i];
@@ -260,7 +250,7 @@
       dot.dataset.winAction = action;
       dot.tabIndex = 0;
       dot.setAttribute("role", "button");
-      dot.setAttribute("aria-label", `${action} window`);
+      dot.setAttribute("aria-label", labels[i]);
       const run = () => handleWindowAction(card, action);
       dot.addEventListener("click", run);
       dot.addEventListener("keydown", (e) => {
