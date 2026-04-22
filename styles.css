@@ -642,7 +642,8 @@ footer {
 
 @media (max-width: 720px) {
   .nav { padding: 18px 20px; }
-  .nav nav { gap: 14px; }
+  .nav nav { gap: 10px; }
+  .nav nav a[href^="#"] { display: none; }
   .mini-nav {
     right: auto;
     left: 50%;
@@ -650,10 +651,28 @@ footer {
     bottom: 16px;
     transform: translateX(-50%);
     grid-auto-flow: column;
-    gap: 12px;
+    gap: 8px;
     padding: 8px 12px;
+    border-radius: 14px;
   }
-  .mini-dot span { display: none; }
+  .mini-dot {
+    width: auto;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mini-dot span {
+    display: block;
+    position: static;
+    transform: none;
+    opacity: 1;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  .mini-dot.is-active span { color: #04120f; }
   .hero, .panel { padding: 80px 20px; }
   .hero-inner, .panel-left .card { margin-left: 0; }
   .term-body { padding: 22px 20px; }
