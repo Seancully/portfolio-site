@@ -194,6 +194,13 @@
       if (idx > 1) return;
       dot.classList.toggle("is-locked", !enabled);
       dot.setAttribute("aria-disabled", enabled ? "false" : "true");
+      if (!enabled) {
+        dot.dataset.locked = "true";
+        dot.tabIndex = -1;
+      } else {
+        delete dot.dataset.locked;
+        dot.tabIndex = 0;
+      }
     });
   };
 
@@ -259,7 +266,13 @@
       dot.tabIndex = 0;
       dot.setAttribute("role", "button");
       dot.setAttribute("aria-label", labels[i]);
-      const run = () => handleWindowAction(card, action);
+      const run = () => {
+        if (dot.dataset.locked === "true") {
+          if (typeof showToast === "function") showToast("press green first");
+          return;
+        }
+        handleWindowAction(card, action);
+      };
       dot.addEventListener("click", run);
       dot.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
