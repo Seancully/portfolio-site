@@ -455,17 +455,17 @@ main { position: relative; z-index: 2; }
 }
 .card p:last-child { margin-bottom: 0; }
 
-.about-card { max-width: 760px; }
+.about-card { max-width: 560px; }
 .about-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: 12px;
   align-items: stretch;
 }
 .about-visual {
   position: relative;
   margin: 4px 0 0;
-  min-height: 156px;
+  min-height: 120px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.1);
@@ -707,8 +707,8 @@ footer {
     letter-spacing: 0.1em;
   }
   .mini-dot.is-active span { color: #04120f; }
-  .about-layout { grid-template-columns: 1fr; gap: 14px; }
-  .about-visual { min-height: 132px; }
+  .about-layout { grid-template-columns: 1fr; gap: 12px; }
+  .about-visual { min-height: 110px; }
   .hero, .panel { padding: 80px 20px; }
   .hero-inner, .panel-left .card { margin-left: 0; }
   .term-body { padding: 22px 20px; }
