@@ -188,14 +188,6 @@
 
   let activeMaximizedCard = null;
   const termState = new Map();
-  const exitMaximized = () => {
-    if (!activeMaximizedCard) return;
-    activeMaximizedCard.classList.remove("is-maximized");
-    activeMaximizedCard = null;
-    termOverlay.classList.remove("show");
-    document.body.classList.remove("term-locked");
-  };
-
   const setRedOrangeEnabled = (card, enabled) => {
     const dots = card.querySelectorAll(".term-dots i");
     dots.forEach((dot, idx) => {
@@ -203,6 +195,22 @@
       dot.classList.toggle("is-locked", !enabled);
       dot.setAttribute("aria-disabled", enabled ? "false" : "true");
     });
+  };
+
+  const disarmCardControls = (card) => {
+    const state = termState.get(card.id);
+    if (state) state.armed = false;
+    setRedOrangeEnabled(card, false);
+  };
+
+  const exitMaximized = () => {
+    if (!activeMaximizedCard) return;
+    const exitingCard = activeMaximizedCard;
+    activeMaximizedCard.classList.remove("is-maximized");
+    activeMaximizedCard = null;
+    termOverlay.classList.remove("show");
+    document.body.classList.remove("term-locked");
+    disarmCardControls(exitingCard);
   };
 
   const handleWindowAction = (card, action) => {
