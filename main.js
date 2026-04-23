@@ -194,6 +194,8 @@
     for (const e of entries) {
       if (e.isIntersecting) {
         e.target.classList.add("in");
+        e.target.classList.add("pulse-cue");
+        setTimeout(() => e.target.classList.remove("pulse-cue"), 1100);
         io.unobserve(e.target);
       }
     }
