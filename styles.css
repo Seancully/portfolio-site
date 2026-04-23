@@ -167,38 +167,8 @@ img, video, canvas { display: block; max-width: 100%; }
   100% { transform: translate(0, 0); }
 }
 
-/* -------- custom cursor -------- */
-.cursor {
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  z-index: 90;
-  width: 0; height: 0;
-  display: none;
-}
-.cursor-dot, .cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  will-change: transform;
-}
-.cursor-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--mint);
-  box-shadow: 0 0 8px rgba(94,234,212,0.6);
-  transition: width 140ms ease, height 140ms ease, opacity 140ms ease;
-}
-.cursor-ring {
-  width: 30px; height: 30px;
-  border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 50%;
-  transition: width 220ms ease, height 220ms ease, border-color 220ms ease;
-}
-.cursor.hover .cursor-dot { width: 0; height: 0; opacity: 0; }
-.cursor.hover .cursor-ring { width: 44px; height: 44px; border-color: var(--mint); }
-@media (hover: none) { .cursor { display: none; } html, body { cursor: auto; } }
-@media (hover: hover) { html, body, a, button { cursor: auto; } }
+/* -------- native cursor -------- */
+html, body, a, button { cursor: auto; }
 
 /* -------- nav -------- */
 .nav {
@@ -1018,7 +988,6 @@ footer {
   .hero-inner, .panel-left .card { margin-left: 0; }
   .term-body { padding: 22px 20px; }
   footer { padding: 24px 20px; flex-direction: column; gap: 8px; }
-  .cursor { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

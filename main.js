@@ -369,30 +369,6 @@
     });
   }
 
-  // --- custom cursor (dot instant, ring lagged) --------------------------
-  const cursor = document.getElementById("cursor");
-  if (cursor && matchMedia("(hover: hover)").matches) {
-    const dot = cursor.querySelector(".cursor-dot");
-    const ring = cursor.querySelector(".cursor-ring");
-    let tx = -100, ty = -100, rx = -100, ry = -100;
-    addEventListener("mousemove", (e) => {
-      tx = e.clientX; ty = e.clientY;
-      if (dot) dot.style.transform = `translate3d(${tx}px, ${ty}px, 0) translate(-50%, -50%)`;
-    }, { passive: true });
-    const step = () => {
-      rx += (tx - rx) * 0.22;
-      ry += (ty - ry) * 0.22;
-      if (ring) ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-    const hoverables = "a, button, .proj, .chips span, .links a, [data-magnet]";
-    document.querySelectorAll(hoverables).forEach((el) => {
-      el.addEventListener("mouseenter", () => cursor.classList.add("hover"));
-      el.addEventListener("mouseleave", () => cursor.classList.remove("hover"));
-    });
-  }
-
   // --- scramble text -----------------------------------------------------
   const SCRAM_CHARS = "!<>-_\\/[]{}—=+*^?#ABCDEF0123456789";
   const rand = (n) => Math.floor(Math.random() * n);
