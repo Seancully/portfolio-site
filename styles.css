@@ -174,6 +174,7 @@ img, video, canvas { display: block; max-width: 100%; }
   pointer-events: none;
   z-index: 90;
   width: 0; height: 0;
+  display: none;
 }
 .cursor-dot, .cursor-ring {
   position: fixed;
@@ -197,7 +198,7 @@ img, video, canvas { display: block; max-width: 100%; }
 .cursor.hover .cursor-dot { width: 0; height: 0; opacity: 0; }
 .cursor.hover .cursor-ring { width: 44px; height: 44px; border-color: var(--mint); }
 @media (hover: none) { .cursor { display: none; } html, body { cursor: auto; } }
-@media (hover: hover) { html, body, a, button { cursor: none; } }
+@media (hover: hover) { html, body, a, button { cursor: auto; } }
 
 /* -------- nav -------- */
 .nav {
@@ -808,7 +809,7 @@ body.term-locked .term-hint { opacity: 0; }
   color: var(--fg-dim);
   border: 1px solid var(--card-border);
   border-radius: 4px;
-  cursor: none;
+  cursor: pointer;
   transition: color 160ms, border-color 160ms, background 160ms;
 }
 .copy-btn:hover { color: var(--mint); border-color: var(--line-strong); background: rgba(94,234,212,0.05); }

@@ -210,58 +210,56 @@
 
   let activeMaximizedCard = null;
 
-  // Update lock state of the dots on a card.
-  // Default: green enabled, red+orange locked.
-  // Maximized: green locked, red+orange enabled.
-  const setDotLocks = (card, { greenOn, redOrangeOn }) => {
-    card.querySelectorAll(".term-dots i.term-dot-btn").forEach((dot) => {
-      const action = dot.dataset.winAction;
-      const enabled = action === "maximize" ? greenOn : redOrangeOn;
-      dot.classList.toggle("is-locked", !enabled);
-      dot.setAttribute("aria-disabled", enabled ? "false" : "true");
-      dot.tabIndex = enabled ? 0 : -1;
-      if (enabled) delete dot.dataset.locked;
-      else dot.dataset.locked = "true";
+  const actionForIndex = ["minimize", "minimize", "maximize"]; // red, orange, green
+  const labelsForIndex = ["close (minimize window)", "minimize window", "maximize window"];
+
+  const applyDotLocks = () => {
+    termCards.forEach((card) => {
+      const isActiveCard = card === activeMaximizedCard;
+      card.querySelectorAll(".term-dots i.term-dot-btn").forEach((dot) => {
+        const action = dot.dataset.winAction;
+        const enabled = action === "maximize" ? true : isActiveCard;
+        dot.classList.toggle("is-locked", !enabled);
+        dot.setAttribute("aria-disabled", enabled ? "false" : "true");
+        dot.tabIndex = enabled ? 0 : -1;
+      });
     });
   };
 
-  const setNormalLocks = (card) => setDotLocks(card, { greenOn: true, redOrangeOn: false });
-  const setMaximizedLocks = (card) => setDotLocks(card, { greenOn: false, redOrangeOn: true });
+  const nudgeLockedDot = (dot) => {
+    dot.classList.remove("shake");
+    void dot.offsetWidth;
+    dot.classList.add("shake");
+  };
 
   const exitMaximized = () => {
     if (!activeMaximizedCard) return;
-    const card = activeMaximizedCard;
-    card.classList.remove("is-maximized");
+    activeMaximizedCard.classList.remove("is-maximized");
     activeMaximizedCard = null;
     termOverlay.classList.remove("show");
     document.body.classList.remove("term-locked");
-    setNormalLocks(card);
+    applyDotLocks();
   };
 
   const enterMaximized = (card) => {
     if (activeMaximizedCard && activeMaximizedCard !== card) {
-      const prev = activeMaximizedCard;
-      prev.classList.remove("is-maximized");
-      setNormalLocks(prev);
+      activeMaximizedCard.classList.remove("is-maximized");
     }
     activeMaximizedCard = card;
     card.classList.add("is-maximized");
     termOverlay.classList.add("show");
     document.body.classList.add("term-locked");
-    setMaximizedLocks(card);
+    applyDotLocks();
     // dismiss hint once user has tried it
     document.body.classList.add("term-hint-used");
   };
 
   const handleWindowAction = (card, action, dot) => {
-    // If the dot is currently locked, give a subtle nudge and bail.
-    if (dot && dot.dataset.locked === "true") {
-      dot.classList.remove("shake");
-      // force reflow so the class re-adds reliably
-      void dot.offsetWidth;
-      dot.classList.add("shake");
+    if (dot.getAttribute("aria-disabled") === "true") {
+      nudgeLockedDot(dot);
       return;
     }
+
     if (action === "maximize") {
       if (activeMaximizedCard === card) exitMaximized();
       else enterMaximized(card);
@@ -273,16 +271,14 @@
 
   termCards.forEach((card, cardIndex) => {
     if (!card.id) card.id = `term-card-${cardIndex + 1}`;
-    const actions = ["minimize", "minimize", "maximize"]; // red, orange, green
-    const labels = ["close (minimize window)", "minimize window", "maximize window"];
     const dots = card.querySelectorAll(".term-dots i");
     dots.forEach((dot, i) => {
-      const action = actions[i];
+      const action = actionForIndex[i];
       if (!action) return;
       dot.classList.add("term-dot-btn");
       dot.dataset.winAction = action;
       dot.setAttribute("role", "button");
-      dot.setAttribute("aria-label", labels[i]);
+      dot.setAttribute("aria-label", labelsForIndex[i]);
       const run = () => handleWindowAction(card, action, dot);
       dot.addEventListener("click", run);
       dot.addEventListener("keydown", (e) => {
@@ -292,8 +288,8 @@
         }
       });
     });
-    setNormalLocks(card); // initial state
   });
+  applyDotLocks();
 
   termOverlay.addEventListener("click", exitMaximized);
   addEventListener("keydown", (e) => {
