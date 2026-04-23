@@ -26,10 +26,13 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='none' stroke='url(%23g)' stroke-width='2'/%3E%3Crect x='10' y='10' width='12' height='12' rx='1' fill='url(%23g)' opacity='.5'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+<!-- scroll progress bar -->
+<div id="scrollProgress" aria-hidden="true"><i></i></div>
 
 <!-- preloader -->
 <div id="preloader" aria-hidden="true">
@@ -117,6 +120,14 @@
   </div>
 
   <section id="about" class="panel panel-left">
+    <div class="term-hint" aria-hidden="true">
+      <span class="term-hint-text">try maximise <br/>/ minimise the <br/>windows!</span>
+      <svg class="term-hint-arrow" viewBox="0 0 140 110" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Keep the tip in whitespace above the terminal, not crossing into the card -->
+        <path d="M68 8 C 98 12, 114 24, 106 38 C 98 52, 84 58, 74 64 C 68 68, 63 72, 58 76" />
+        <path d="M68 74 L 58 76 L 60 66" />
+      </svg>
+    </div>
     <div class="card term about-card">
       <div class="term-bar">
         <div class="term-dots"><i></i><i></i><i></i></div>
@@ -126,7 +137,7 @@
       <div class="term-body">
         <div class="about-layout">
           <div class="about-copy">
-            <p class="tag" data-scramble>01 — about</p>
+            <p class="tag" data-type>01 — about</p>
             <h2 data-scramble>hey, I'm Sean.</h2>
             <p>I design and build software, mostly on the web. I like type, fast interfaces, and code that's genuinely honest about what it's doing.</p>
             <p>Outside of work I lift weights, and dive down whatever rabbit hole looks most interesting that week.</p>
@@ -134,6 +145,16 @@
           <figure class="about-visual" aria-hidden="true">
             <img src="assets/sean.webp" alt="" loading="lazy" decoding="async" />
           </figure>
+        </div>
+        <div class="gh-activity" aria-label="GitHub contribution activity, last year">
+          <div class="gh-activity-head">
+            <span class="gh-activity-label">› github activity</span>
+            <a href="https://github.com/Seancully" target="_blank" rel="noopener" data-magnet>@Seancully <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="gh-activity-chart">
+            <img src="https://ghchart.rshah.org/5eead4/Seancully" alt="" loading="lazy" decoding="async" onerror="this.closest('.gh-activity').classList.add('gh-fail')" />
+          </div>
+          <p class="gh-activity-fallback">contribution graph unavailable — see <a href="https://github.com/Seancully" target="_blank" rel="noopener">github.com/Seancully</a>.</p>
         </div>
       </div>
     </div>
@@ -150,7 +171,7 @@
         <p class="tag" data-scramble>02 — selected work</p>
         <h2 data-scramble>things I've built</h2>
         <ul class="projects">
-          <li><a href="https://www.furlongequipment.com" target="_blank" rel="noopener" class="proj" data-magnet>
+          <li><a href="https://www.furlongequipment.com" target="_blank" rel="noopener" class="proj" data-tilt>
             <span class="proj-thumb" style="--t1:#f59e0b;--t2:#fbbf24">
               <img src="assets/projects/furlong.jpg" alt="" loading="lazy" />
             </span>
@@ -161,7 +182,7 @@
             </span>
             <span class="proj-arrow">↗</span>
           </a></li>
-          <li><a href="https://ronanocfitness.com" target="_blank" rel="noopener" class="proj" data-magnet>
+          <li><a href="https://ronanocfitness.com" target="_blank" rel="noopener" class="proj" data-tilt>
             <span class="proj-thumb" style="--t1:#ef4444;--t2:#991b1b">
               <img src="assets/projects/ronanoc.svg" alt="" loading="lazy" />
             </span>
@@ -172,7 +193,7 @@
             </span>
             <span class="proj-arrow">↗</span>
           </a></li>
-          <li><article class="proj" data-magnet aria-label="Jarvis project (local-only)">
+          <li><article class="proj" data-tilt aria-label="Jarvis project (local-only)">
             <span class="proj-thumb" style="--t1:#a78bfa;--t2:#5eead4">
               <img src="assets/projects/jarvis.svg" alt="" loading="lazy" />
             </span>

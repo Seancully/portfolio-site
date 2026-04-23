@@ -25,6 +25,7 @@
   const plFill = document.getElementById("plFill");
   const plPct = document.getElementById("plPct");
   const preloader = document.getElementById("preloader");
+  const scrollProgressFill = document.querySelector("#scrollProgress i");
 
   const framesReady = new Promise((resolve) => {
     for (let i = 0; i < FRAME_COUNT; i++) {
@@ -94,6 +95,20 @@
     maxY: () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight),
   };
   const clampY = (y) => Math.min(smooth.maxY(), Math.max(0, y));
+  const chapterSections = [...document.querySelectorAll("section")];
+  let sectionFocus = 1;
+  const getSectionFocus = (probeY) => {
+    if (!chapterSections.length) return 1;
+    let best = 0;
+    for (const s of chapterSections) {
+      const top = s.offsetTop;
+      const h = Math.max(1, s.offsetHeight);
+      const local = (probeY - top) / h;
+      const focus = 1 - Math.min(1, Math.abs(local - 0.5) * 2);
+      if (focus > best) best = focus;
+    }
+    return best;
+  };
 
   if (smooth.enabled) {
     addEventListener("wheel", (e) => {
@@ -161,6 +176,11 @@
 
     const maxScroll = smooth.maxY() || 1;
     const progress = Math.min(1, Math.max(0, smooth.current / maxScroll));
+    if (scrollProgressFill) scrollProgressFill.style.width = `${(progress * 100).toFixed(2)}%`;
+
+    const probeY = smooth.current + window.innerHeight * 0.5;
+    sectionFocus += (getSectionFocus(probeY) - sectionFocus) * 0.12;
+
     // top -> last frame (cube centred big); bottom -> first frame
     drawFrame((1 - progress) * (FRAME_COUNT - 1));
 
@@ -187,92 +207,81 @@
   document.body.appendChild(termOverlay);
 
   let activeMaximizedCard = null;
-  const termState = new Map();
-  const setRedOrangeEnabled = (card, enabled) => {
-    const dots = card.querySelectorAll(".term-dots i");
-    dots.forEach((dot, idx) => {
-      if (idx > 1) return;
+
+  // Update lock state of the dots on a card.
+  // Default: green enabled, red+orange locked.
+  // Maximized: green locked, red+orange enabled.
+  const setDotLocks = (card, { greenOn, redOrangeOn }) => {
+    card.querySelectorAll(".term-dots i.term-dot-btn").forEach((dot) => {
+      const action = dot.dataset.winAction;
+      const enabled = action === "maximize" ? greenOn : redOrangeOn;
       dot.classList.toggle("is-locked", !enabled);
       dot.setAttribute("aria-disabled", enabled ? "false" : "true");
-      if (!enabled) {
-        dot.dataset.locked = "true";
-        dot.tabIndex = -1;
-      } else {
-        delete dot.dataset.locked;
-        dot.tabIndex = 0;
-      }
+      dot.tabIndex = enabled ? 0 : -1;
+      if (enabled) delete dot.dataset.locked;
+      else dot.dataset.locked = "true";
     });
   };
 
-  const disarmCardControls = (card) => {
-    const state = termState.get(card.id);
-    if (state) state.armed = false;
-    setRedOrangeEnabled(card, false);
-  };
+  const setNormalLocks = (card) => setDotLocks(card, { greenOn: true, redOrangeOn: false });
+  const setMaximizedLocks = (card) => setDotLocks(card, { greenOn: false, redOrangeOn: true });
 
   const exitMaximized = () => {
     if (!activeMaximizedCard) return;
-    const exitingCard = activeMaximizedCard;
-    activeMaximizedCard.classList.remove("is-maximized");
+    const card = activeMaximizedCard;
+    card.classList.remove("is-maximized");
     activeMaximizedCard = null;
     termOverlay.classList.remove("show");
     document.body.classList.remove("term-locked");
-    disarmCardControls(exitingCard);
+    setNormalLocks(card);
   };
 
-  const handleWindowAction = (card, action) => {
-    if (action === "minimize") {
-      const state = termState.get(card.id);
-      if (!state?.armed) {
-        if (typeof showToast === "function") showToast("press green first");
-        return;
-      }
-      if (activeMaximizedCard === card) exitMaximized();
-      card.classList.toggle("is-minimized");
+  const enterMaximized = (card) => {
+    if (activeMaximizedCard && activeMaximizedCard !== card) {
+      const prev = activeMaximizedCard;
+      prev.classList.remove("is-maximized");
+      setNormalLocks(prev);
+    }
+    activeMaximizedCard = card;
+    card.classList.add("is-maximized");
+    termOverlay.classList.add("show");
+    document.body.classList.add("term-locked");
+    setMaximizedLocks(card);
+    // dismiss hint once user has tried it
+    document.body.classList.add("term-hint-used");
+  };
+
+  const handleWindowAction = (card, action, dot) => {
+    // If the dot is currently locked, give a subtle nudge and bail.
+    if (dot && dot.dataset.locked === "true") {
+      dot.classList.remove("shake");
+      // force reflow so the class re-adds reliably
+      void dot.offsetWidth;
+      dot.classList.add("shake");
       return;
     }
-
     if (action === "maximize") {
-      const state = termState.get(card.id);
-      if (state && !state.armed) {
-        state.armed = true;
-        setRedOrangeEnabled(card, true);
-      }
-      card.classList.remove("is-minimized");
-      if (activeMaximizedCard === card) {
-        exitMaximized();
-        return;
-      }
-      if (activeMaximizedCard) activeMaximizedCard.classList.remove("is-maximized");
-      activeMaximizedCard = card;
-      activeMaximizedCard.classList.add("is-maximized");
-      termOverlay.classList.add("show");
-      document.body.classList.add("term-locked");
+      if (activeMaximizedCard === card) exitMaximized();
+      else enterMaximized(card);
+    } else if (action === "minimize") {
+      // red + orange both just exit-maximize
+      if (activeMaximizedCard === card) exitMaximized();
     }
   };
 
   termCards.forEach((card, cardIndex) => {
     if (!card.id) card.id = `term-card-${cardIndex + 1}`;
-    termState.set(card.id, { armed: false });
-    setRedOrangeEnabled(card, false);
-    const actions = ["minimize", "minimize", "maximize"];
-    const labels = ["minimize window", "minimize window", "maximize window"];
+    const actions = ["minimize", "minimize", "maximize"]; // red, orange, green
+    const labels = ["close (minimize window)", "minimize window", "maximize window"];
     const dots = card.querySelectorAll(".term-dots i");
     dots.forEach((dot, i) => {
       const action = actions[i];
       if (!action) return;
       dot.classList.add("term-dot-btn");
       dot.dataset.winAction = action;
-      dot.tabIndex = 0;
       dot.setAttribute("role", "button");
       dot.setAttribute("aria-label", labels[i]);
-      const run = () => {
-        if (dot.dataset.locked === "true") {
-          if (typeof showToast === "function") showToast("press green first");
-          return;
-        }
-        handleWindowAction(card, action);
-      };
+      const run = () => handleWindowAction(card, action, dot);
       dot.addEventListener("click", run);
       dot.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -281,6 +290,7 @@
         }
       });
     });
+    setNormalLocks(card); // initial state
   });
 
   termOverlay.addEventListener("click", exitMaximized);
@@ -332,6 +342,34 @@
       if (!raf) raf = requestAnimationFrame(anim);
     });
   });
+
+  // --- project card tilt/parallax ---------------------------------------
+  if (matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll("[data-tilt]").forEach((card) => {
+      const maxTilt = 8;
+      const reset = () => {
+        card.style.setProperty("--rx", "0deg");
+        card.style.setProperty("--ry", "0deg");
+        card.style.setProperty("--px", "0");
+        card.style.setProperty("--py", "0");
+        card.classList.remove("is-tilting");
+      };
+
+      card.addEventListener("mousemove", (e) => {
+        const r = card.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+        card.style.setProperty("--rx", `${(-ny * maxTilt).toFixed(2)}deg`);
+        card.style.setProperty("--ry", `${(nx * maxTilt).toFixed(2)}deg`);
+        card.style.setProperty("--px", nx.toFixed(3));
+        card.style.setProperty("--py", ny.toFixed(3));
+        card.classList.add("is-tilting");
+      });
+
+      card.addEventListener("mouseleave", reset);
+      reset();
+    });
+  }
 
   // --- custom cursor (dot instant, ring lagged) --------------------------
   const cursor = document.getElementById("cursor");
@@ -391,6 +429,49 @@
   }, { threshold: 0.5 });
   document.querySelectorAll("[data-scramble]").forEach((el) => scrambleIO.observe(el));
 
+  // --- one-time terminal typing label -----------------------------------
+  const typeTargets = [...document.querySelectorAll("[data-type]")];
+  if (typeTargets.length) {
+    const TYPE_KEY = "about-tag-typed-v1";
+    const runType = (el) => {
+      const text = (el.dataset.fullText || el.textContent || "").trim();
+      el.textContent = "";
+      el.classList.add("is-typing");
+      let i = 0;
+      const tick = () => {
+        i += 1;
+        el.textContent = text.slice(0, i);
+        if (i < text.length) setTimeout(tick, 36);
+        else el.classList.remove("is-typing");
+      };
+      tick();
+    };
+
+    typeTargets.forEach((el) => {
+      el.dataset.fullText = (el.textContent || "").trim();
+    });
+
+    let alreadyTyped = false;
+    try { alreadyTyped = sessionStorage.getItem(TYPE_KEY) === "1"; } catch (_) {}
+
+    if (alreadyTyped) {
+      typeTargets.forEach((el) => {
+        el.textContent = el.dataset.fullText || el.textContent;
+        el.classList.remove("is-typing");
+      });
+    } else {
+      const typeIO = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          runType(e.target);
+          typeIO.unobserve(e.target);
+          try { sessionStorage.setItem(TYPE_KEY, "1"); } catch (_) {}
+        }
+      }, { threshold: 0.55 });
+      typeTargets.forEach((el) => typeIO.observe(el));
+    }
+  }
+
   // --- toast + copy-email ------------------------------------------------
   const toast = document.getElementById("toast");
   let toastTimer = 0;
@@ -439,7 +520,7 @@
         btn.classList.add("copied");
         burstSparks(cx, cy);
         showToast("copied to clipboard");
-        setTimeout(() => { btn.textContent = "copy"; btn.classList.remove("copied"); }, 1800);
+        setTimeout(() => { btn.textContent = "copy"; btn.classList.remove("copied"); }, 1200);
       } catch (_) {
         showToast("press ⌘C to copy");
       }
@@ -468,9 +549,13 @@
   (function tintLoop() {
     const v = Math.min(30, Math.abs(velocity));
     const hue = baseHue + velocity * 0.4;
+    const sat = 0.74 + sectionFocus * 0.38;
+    const chapterBlur = (1 - sectionFocus) * 1.15;
+    const zoom = 0.965 + sectionFocus * 0.07;
     canvas.style.filter = v > 0.5
-      ? `saturate(1.05) contrast(1.05) blur(${v * 0.04}px) hue-rotate(${hue}deg)`
-      : `saturate(1.05) contrast(1.05) hue-rotate(${baseHue}deg)`;
+      ? `saturate(${sat.toFixed(3)}) contrast(1.06) blur(${(v * 0.04 + chapterBlur).toFixed(3)}px) hue-rotate(${hue}deg)`
+      : `saturate(${sat.toFixed(3)}) contrast(1.06) blur(${chapterBlur.toFixed(3)}px) hue-rotate(${baseHue}deg)`;
+    canvas.style.transform = `scale(${zoom.toFixed(4)})`;
     requestAnimationFrame(tintLoop);
   })();
 
